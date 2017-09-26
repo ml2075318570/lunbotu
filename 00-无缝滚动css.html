@@ -1,0 +1,255 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>无标题文档</title>
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            border: 0;
+        }
+
+        .all {
+            width: 500px;
+            height: 200px;
+            padding: 7px;
+            border: 1px solid #ccc;
+            margin: 100px auto;
+            position: relative;
+        }
+
+        .screen {
+            width: 500px;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen li {
+            width: 500px;
+            height: 200px;
+            overflow: hidden;
+            float: left;
+        }
+
+        .screen ul {
+            position: absolute;
+            left: 0;
+            top: 0px;
+            width: 4000px;
+        }
+
+        .all ol {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        .all ol li {
+            float: left;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .all ol li.current {
+            background: yellow;
+        }
+
+        #arr {
+            display: none;
+        }
+
+        #arr span {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            margin-top: -20px;
+            background: #000;
+            cursor: pointer;
+            line-height: 40px;
+            text-align: center;
+            font-weight: bold;
+            font-family: '黑体';
+            font-size: 30px;
+            color: #fff;
+            opacity: 0.3;
+            border: 1px solid #fff;
+        }
+
+        #arr #right {
+            right: 5px;
+            left: auto;
+        }
+
+    </style>
+
+    <script>
+
+    </script>
+</head>
+
+<body>
+
+<!--外盒子-->
+<div class="all" id='all'>
+    <!--内盒子-->
+    <div class="screen" id="screen">
+        <ul id="ul">
+            <li><img src="images/1.jpg" width="500" height="200"/></li>
+            <li><img src="images/2.jpg" width="500" height="200"/></li>
+            <li><img src="images/3.jpg" width="500" height="200"/></li>
+            <li><img src="images/4.jpg" width="500" height="200"/></li>
+            <li><img src="images/5.jpg" width="500" height="200"/></li>
+        </ul>
+        <!--小方块-->
+        <ol>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+        </ol>
+        <!--左右小三角-->
+        <div id="arr">
+            <span id="left"><</span>
+            <span id="right">></span>
+        </div>
+    </div>
+</div>
+
+</body>
+<script src="myTools.js"></script>
+<script>
+    //获取相关元素
+    var oUl = $('#ul');
+    //1. 鼠标移上screen, 小三角显示
+    var oScreen = $('#screen');
+    var oArr = $('#arr');
+
+    oScreen.onmouseover = function () {
+        oArr.style.display = 'block';
+        clearInterval(timer);
+        timer = null;
+    };
+    // 鼠标移开screen， 小三角隐藏
+    oScreen.onmouseout = function () {
+        oArr.style.display = 'none';
+        timer = setInterval(autoPlay,2000);
+    };
+    //=================================================================
+    //定义全局变量，ul的计数器
+    var aOl = $('ol', oScreen)[0];
+    var aList = $('li', aOl);
+    var k = 1;
+    var oRight = $('#right');
+    var oLeft = $('#left');
+    var aLi = $('li', oUl);
+    var imgW = aLi[0].children[0].offsetWidth;// 获取每个图片的宽
+
+    //2. 点击右按钮，图片向左移动
+    //克隆第一个li 放到最后
+    var newLi = aLi[0].cloneNode(true);
+    oUl.appendChild(newLi);
+    //克隆第5个li 放到最前
+    var newLi2 = aLi[aLi.length - 2].cloneNode(true);
+    //console.log(aLi[aLi.length-2]);
+    oUl.insertBefore(newLi2, first(oUl));
+    //导航方块初始化
+    aList[0].className = 'current';
+    oUl.style.left = -imgW * k + 'px';
+    //单击事件
+    oRight.onclick = function () {
+        k++;
+        if(k>=aLi.length) {
+            k = 1;
+            oUl.style.left = -imgW*k + "px";
+        }
+        move(oUl, "left", 30, -imgW * k, function () {
+            if (k >= aLi.length - 1) {
+                k = 1;
+                oUl.style.left = -imgW * k + 'px';
+            }
+            //暴力清除
+            for (var i = 0; i < aList.length; i++) {
+                aList[i].className = '';
+            }
+            aList[k - 1].className = 'current';
+        });
+    }
+    //单击左按钮，图片右移
+
+    //单击事件
+    oLeft.onclick = function () {
+        k--;
+        if(k<0){
+            k = aLi.length - 2;
+            oUl.style.left = -imgW * k + 'px';
+        }
+        move(oUl, "left", 30, -imgW * k, function () {
+            if (k <= 0) {
+                k = aLi.length - 2;
+                oUl.style.left = -imgW * k + 'px';
+            }
+            //暴力清除
+            for (var i = 0; i < aList.length; i++) {
+                aList[i].className = '';
+            }
+            aList[k - 1].className = 'current';
+        });
+    };
+    //=================================================
+    //第三事
+    //循环所有的导航小方块　给他们添加鼠标移上事件　
+    for (var i = 0; i < aList.length; i++) {
+        //存储索引
+        aList[i].index = i;
+        aList[i].onmouseover = function () {
+            k = this.index + 1;
+            move(oUl, "left", 30, -imgW * k);
+            //暴力清除
+            for (var i = 0; i < aList.length; i++) {
+                aList[i].className = '';
+            }
+            aList[k - 1].className = 'current';
+        }
+    }
+    //
+    timer = setInterval(autoPlay,2000);
+    function　autoPlay() {
+
+        // 一单击 让全局变量k加一下
+        k++;
+        if(k>=aLi.length) {
+            k = 1;
+            oUl.style.left = -imgW*k + "px";
+        }
+        //单击一下  要往左侧移动一个图片的宽
+        move(oUl,"left",30,-imgW*k,function(){
+
+            //每一次运动完毕之后　要进行判断　　如果k变化到某一个数值了 则让oUl迅速归位
+            if(k >= aLi.length-1) {
+                k = 1;// 让变量k 等于0
+                oUl.style.left = -imgW*k + "px"; // 0px
+            }
+            // 暴力清除 将所有的导航小方块全部去掉黄色类
+            for(var i = 0; i < aList.length; i++) {
+                aList[i].className = "";
+            }
+            //当前的运动过来了 让当前的那个对应的导航小方块 加上黄色类
+            aList[k-1].className = "current";
+        });
+
+    }
+</script>
+</html>
+
